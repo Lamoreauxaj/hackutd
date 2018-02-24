@@ -4,20 +4,69 @@
     <meta charset="UTF-8">
     <title>Project</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script>
+    <script src="%% url_for('view_static', filename='lib/jquery.js') %%"></script>
+    <script src="%% url_for('view_static', filename='lib/materialize.js') %%"></script>
+    <script src="%% url_for('view_static', filename='lib/vue.js') %%"></script>
 
     <link rel="stylesheet" href="%% url_for('view_static', filename='css/index.css') %%">
 </head>
 <body>
     <div id="root">
+        <img class="icon">Weiss</img>
+        <h5 class="topic-header amber-text text-darken-2">Unsolved Problems in:</h5>
+        <ul class="topic-list">
+            <li v-for="topic in topics" class="topic-item">
+                <button class="btn topic-button white black-text" :class="{ disabled: currTopic == topic }" @click="onTopicClick(topic)">{{ topic }}</button>
+            </li>
+        </ul>
+        <ul class="problem-list row">
+            <li v-for="problem in problems" :style="{ 'background-color': problem.color }" class="problem card col s10 offset-s1 m8 offset-m2 l6 offset-l3 xl4 offset-xl4">
+                <div>
+                    <h5 class="problem-title" style="display: inline-block">{{ problem.title }}</h5>
+                    <i class="material-icons problem-dropdown-icon" style="display: inline-block">arrow_drop_down</i>
+                </div>
+                <div class="problem-dropdown" style="display: none">
+                    <ul class="source-list">
+                        <li class="source">Source 1</li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
     </div>
     <script>
         var vue = new Vue({
             el: '#root',
             data: function() {
+                return {
+                    currTopic: "",
+                    topics: [
+                        "mathematics",
+                        "other"
+                    ],
+                    problems: [
+                        {
+                            title: 'P ! NP',
+                            color: '#81c784'
+                        },
+                        {
+                            title: 'P = NP',
+                            color: '#e8f5e9'
+                        }
+                    ]
+                };
+            },
+            methods: {
+                onTopicClick: function(newTopic) {
+                    this.currTopic = newTopic;
+                }
+            },
+            mounted: function() {
+                this.currTopic = this.topics[0];
+                $.post('/api/unsolved-problems', { topics : 'mathematics' }, function(data) {
+                    console.log(data);
+                });
             }
         });
     </script>

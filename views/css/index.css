@@ -1,3 +1,67 @@
-body {
-    background: red;
+#root {
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    // background: linear-gradient(yellow, orange);
+    background-color: #f47a63;
+}
+
+.icon {
+
+}
+
+.topic-list {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.topic-header {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.topic-list .topic-item {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.topic-list .topic-item .topic-button {
+    border-radius: 10px;
+}
+
+.problem-list {
+
+}
+
+.problem-list .problem {
+    border-radius: 10px;
+}
+
+.problem-list .problem div {
+    text-align: center
+}
+
+.problem-list .problem .problem-title {
+    margin-left: 10px;
+    margin-right: auto;
+}
+
+.problem-list .problem .problem-dropdown-icon {
+    float: right;
+    vertical-align: center;
+    margin-top: 13px;
+}
+
+.problem-list .problem .problem-dropdown {
+
+}
+
+.problem-list .problem .problem-dropdown .source-list {
+
+}
+
+.problem-list .problem .problem-dropdown .source-list .source {
+
 }
