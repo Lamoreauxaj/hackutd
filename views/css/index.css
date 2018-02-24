@@ -7,14 +7,14 @@
 }
 
 .icon {
-
+    max-width: 200px;
 }
 
 .topic-list {
+    align-self: center;
     display: flex;
-    flex-direction: row;
-    justify-content: center;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .topic-header {
@@ -22,12 +22,15 @@
     margin-top: 30px;
 }
 
-.topic-list .topic-item {
+.topic-item {
     margin-left: 10px;
     margin-right: 10px;
+    align-self: center;
+    margin-top: 10px;
+    margin-bottom: 2px;
 }
 
-.topic-list .topic-item .topic-button {
+.topic-item .topic-button {
     border-radius: 10px;
 }
 
