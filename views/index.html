@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Project</title>
+    <title>Weiss</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -14,6 +14,8 @@
 </head>
 <body>
     <div id="root">
+
+        <!-- Header Stuffs (logo, topics)-->
         <div style="text-align: center">
             <img class="icon responsive-img" src="%% url_for('static', filename='logo_cropped.png') %%">
         </div>
@@ -22,16 +24,43 @@
                 <button class="btn topic-button white black-text" :class="{ disabled: currTopic == topic }" @click="onTopicClick(topic)">{{ topic }}</button>
             </div>
         </div>
-        <h5 class="topic-header amber-text text-darken-2">Unsolved Problems in:</h5>
-        <ul class="problem-list row">
-            <li v-for="problem in problems" :style="{ 'background-color': problem.color }" class="problem card col s10 offset-s1 m8 offset-m2 l6 offset-l3 xl4 offset-xl4">
+
+        <!-- Unsolved problems under this topic -->
+        <h4 class="white-text" style="text-align: center; margin-top: 50px;">Unsolved Problems <i class="material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Unsolved problems sorted by likelihood to be solved.">info</i></h4>
+        <ul class="problem-list row" v-if="unsolved">
+            <li v-for="problem, index in unsolved[currTopic]" v-if="index < showUnsolvedCount" :style="{ 'background-color': problem.color }" class="problem card col s10 offset-s1 m8 offset-m2 l6 offset-l3 xl4 offset-xl4">
                 <div>
-                    <h5 class="problem-title" style="display: inline-block">{{ problem.title }}</h5>
-                    <i class="material-icons problem-dropdown-icon" style="display: inline-block">arrow_drop_down</i>
+                    <h5 class="problem-title black-text" style="display: inline-block"><a class="black-text" :href="problem.link">{{ problem.title }}</a></h5>
+                    <i class="material-icons problem-dropdown-icon" @click="setDropdown(index, false)" style="display: inline-block">arrow_drop_down</i>
                 </div>
-                <div class="problem-dropdown" style="display: none">
+                <div class="problem-dropdown" :style="{ 'display': (!problem.dropdown ? 'none' : 'block') }">
                     <ul class="source-list">
-                        <li class="source">Source 1</li>
+                        <li v-for="source in problem.sources" class="source">
+                            <h6><a class="black-text" :href="source.link">{{ source.title }}</a></h6>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+        <div style="text-align: center" v-if="unsolved && unsolved[currTopic].length > showUnsolvedCount">
+            <button class="btn-small white black-text" style="border-radius: 10px;" @click="showUnsolvedCount += 5;">Show More</button>
+        </div>
+        <div></div>
+
+        <!-- Solved problems under this topic -->
+        <h4 class="white-text" style="text-align: center; margin-top: 50px">Solved Problems <i class="material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Solved problems sorted by most recently solved.">info</i></h4>
+        <ul class="problem-list row" v-if="solved">
+            <li v-for="problem, index in solved[currTopic]" v-if="index < showSolvedCount" :style="{ 'background-color': problem.color}" class="problem card col s10 offset-s1 m8 offset-m2 l6 offset-l3 xl4 offset-xl4">
+                <div>
+                    <h5 class="problem-title black-text" style="display: inline-block"><a class="black-text" :href="problem.link">{{ problem.title }}</a></h5>
+                    <i class="material-icons problem-dropdown-icon" @click="setDropdown(index, true)" style="display: inline-block">arrow_drop_down</i>
+                </div>
+                <div class="problem-dropdown" :style="{ 'display': (!problem.dropdown ? 'none' : 'block') }">
+                    <ul class="source-list">
+                        <li>Solved By {{ problem.solvedBy }}</li>
+                        <li v-for="source in problem.sources" class="source">
+                            <h6><a class="black-text" :href="source.link">{{ source.title }}</a></h6>
+                        </li>
                     </ul>
                 </div>
             </li>
@@ -43,29 +72,117 @@
             data: function() {
                 return {
                     currTopic: "",
-                    topics: [
-                        "mathematics",
-                        "other"
-                    ],
-                    problems: [
-                        {
-                            title: 'P ! NP',
-                            color: '#81c784'
-                        },
-                        {
-                            title: 'P = NP',
-                            color: '#e8f5e9'
-                        }
-                    ]
+                    topics: undefined,
+                    unsolved: undefined,
+                    showUnsolvedCount: 5,
+                    solved: undefined,
+                    showSolvedCount: 5
                 };
             },
             methods: {
                 onTopicClick: function(newTopic) {
                     this.currTopic = newTopic;
+                    this.showUnsolvedCount = 5;
+                    this.showSolvedCount = 5;
+                },
+                setDropdown: function(index, solved) {
+                    if (solved) {
+                        this.solved[this.currTopic][index].dropdown = !this.solved[this.currTopic][index].dropdown;
+                        this.solved = Object.assign({}, this.solved);
+                    }
+                    else {
+                        this.unsolved[this.currTopic][index].dropdown = !this.unsolved[this.currTopic][index].dropdown;
+                        this.unsolved = Object.assign({}, this.unsolved);
+                    }
+                },
+                setCharacteristicsOfProblems: function(allProblems) {
+                    Object.keys(allProblems).forEach((topic) => {
+                        if (!allProblems.hasOwnProperty(topic)) return;
+                        let problems = allProblems[topic];
+                        let startRed = parseInt('e8', 16);
+                        let startGreen = parseInt('f5', 16);
+                        let startBlue = parseInt('e9', 16);
+                        let endRed = parseInt('a5', 16);
+                        let endGreen = parseInt('d6', 16);
+                        let endBlue = parseInt('a7', 16);
+                        let diffRed = Math.floor((startRed - endRed) / (problems.length - 1));
+                        let diffGreen = Math.floor((startGreen - endGreen) / (problems.length - 1));
+                        let diffBlue = Math.floor((startBlue - endBlue) / (problems.length - 1));
+                        problems.forEach((problem, index) => {
+                            problem.dropdown = false;
+                            let red = endRed;
+                            if (index !== 0) red = (endRed + index * diffRed);
+                            red = red.toString(16);
+                            while (red.length < 2) red = "0" + red;
+                            let green = endGreen;
+                            if (index !== 0) green = (endGreen + index * diffGreen);
+                            green = green.toString(16);
+                            while (green.length < 2) green = "0" + green;
+                            let blue = endBlue;
+                            if (index !== 0) blue = (endBlue + index * diffBlue);
+                            blue = blue.toString(16);
+                            while (blue.length < 2) blue = "0" + blue;
+                            problem.color = "#" + red + green + blue;
+                        });
+                        allProblems[topic] = problems;
+                    });
+                    return allProblems;
                 }
             },
-            mounted: function() {
+            mounted: async function() {
+                // Set topics
+                await $.post('/api/get-topics', {}, (data) => {
+                    this.topics = data;
+                });
+                // Set current topic
                 this.currTopic = this.topics[0];
+                // Get problems
+                await $.post('/api/get-unsolved-problems', {}, (data) => {
+                    this.unsolved = data;
+                });
+                this.solved = {
+                    'mathematics': [
+                        {
+                            title: 'P versus NP problem',
+                            solvedBy: 'Puya Gharahi',
+                            link: 'google.com',
+                            sources: [
+                                {
+                                    title: 'Wikipedia - P versus NP problem',
+                                    link: 'https://en.wikipedia.org/wiki/P_versus_NP_problem'
+                                }
+                            ]
+                        },
+                        {
+                            title: 'P versus NP problem',
+                            solvedBy: 'Puya Gharahi',
+                            link: 'google.com',
+                            sources: [
+                                {
+                                    title: 'Wikipedia - P versus NP problem',
+                                    link: 'https://en.wikipedia.org/wiki/P_versus_NP_problem'
+                                }
+                            ]
+                        },
+                        {
+                            title: 'P versus NP problem',
+                            solvedBy: 'Puya Gharahi',
+                            link: 'google.com',
+                            sources: [
+                                {
+                                    title: 'Wikipedia - P versus NP problem',
+                                    link: 'https://en.wikipedia.org/wiki/P_versus_NP_problem'
+                                }
+                            ]
+                        }
+                    ],
+                    'other': [
+
+                    ]
+                };
+                // Add characteristics to problems
+                this.unsolved = this.setCharacteristicsOfProblems(this.unsolved);
+                this.solved = this.setCharacteristicsOfProblems(this.solved);
             }
         });
     </script>

@@ -38,33 +38,35 @@
 
 }
 
-.problem-list .problem {
+.problem {
     border-radius: 10px;
 }
 
-.problem-list .problem div {
+.problem div {
     text-align: center
 }
 
-.problem-list .problem .problem-title {
+.problem-title {
     margin-left: 10px;
     margin-right: auto;
 }
 
-.problem-list .problem .problem-dropdown-icon {
+.problem-dropdown-icon {
     float: right;
     vertical-align: center;
     margin-top: 13px;
 }
 
-.problem-list .problem .problem-dropdown {
+.problem-dropdown {
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: black;
+}
+
+.source-list {
 
 }
 
-.problem-list .problem .problem-dropdown .source-list {
-
-}
-
-.problem-list .problem .problem-dropdown .source-list .source {
-
+.source {
+    text-align: center;
 }
