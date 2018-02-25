@@ -13,11 +13,11 @@ def grab_sources_problem(problem, amt=25):
     for link in resp:
         try:
             content = BeautifulSoup(urlopen(link).read(), 'lxml')
-            if content.title is None:
-                continue
-            links.append({'title': str(content.title.string).strip(), 'link': link})
         except:
             pass
+        if content.title is None:
+            continue
+        links.append({'title': str(content.title.string).strip(), 'link': link})
     return links
 
 
@@ -43,6 +43,7 @@ def calculate_solvability_and_sources(sources):
 
 
 def scrape_unsolved_problems_topic(topic):
+    problems_names = []
     if topic == 'mathematics':
         problems_names = [
             {'title': 'P versus NP', 'link': 'https://en.wikipedia.org/wiki/P_versus_NP_problem'},
@@ -52,10 +53,11 @@ def scrape_unsolved_problems_topic(topic):
             {'title': 'Navier-Stokes existence and smoothness', 'link': 'https://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_existence_and_smoothness'},
             {'title': 'Birch and Swinnerton-Dyer conjecture', 'link': 'https://en.wikipedia.org/wiki/Birch_and_Swinnerton-Dyer_conjecture'}
         ]
-    elif topic == 'computer science':
-        problem_names = [
+    if topic == 'computer science':
+        problems_names = [
             {'title': 'P versus NP problem', 'link': 'https://en.wikipedia.org/wiki/P_versus_NP_problem'},
-            {'title': 'Collatz Conjecture', 'link': 'https://en.wikipedia.org/wiki/P_versus_NP_problem'}
+            {'title': 'Collatz Conjecture', 'link': 'https://en.wikipedia.org/wiki/Collatz_conjecture'},
+            {'title': 'Polynomial Discrete Logarithm', 'link': 'https://en.wikipedia.org/wiki/Discrete_logarithm'}
         ]
     for problem in problems_names:
         title = problem['title']
@@ -70,16 +72,16 @@ def scrape_unsolved_problems_topic(topic):
         app.db.session.add(unsolved)
         app.db.session.commit()
 
+
 def scrape_solved_problems_topic(topic):
+    problems_names = []
     if topic == 'mathematics':
         problems_names = [
-            {'title': 'P versus NP problem', 'link': 'https://en.wikipedia.org/wiki/P_versus_NP_problem', 'solvedBy': 'Aaron'},
-            {'title': 'Collatz Conjecture', 'link': 'https://en.wikipedia.org/wiki/P_versus_NP_problem', 'solvedBy': 'Aaron'}
+            {'title': 'Poincare Conjecture', 'link': 'https://en.wikipedia.org/wiki/Poincar%C3%A9_conjecture', 'solvedBy': 'Grigori Perelman'},
+            {'title': 'Fermat\'s Last Theorem', 'link': 'https://en.wikipedia.org/wiki/Fermat%27s_Last_Theorem', 'solvedBy': 'Andrew Wiles'}
         ]
-    elif topic == 'computer science':
-        problem_names = [
-            {'title': 'P versus NP problem', 'link': 'https://en.wikipedia.org/wiki/P_versus_NP_problem', 'solvedBy': 'Aaron'},
-            {'title': 'Collatz Conjecture', 'link': 'https://en.wikipedia.org/wiki/P_versus_NP_problem', 'solvedBy': 'Aaron'}
+    if topic == 'computer science':
+        problems_names = [
         ]
     for problem in problems_names:
         title = problem['title']
@@ -87,7 +89,7 @@ def scrape_solved_problems_topic(topic):
         solvedBy = problem['solvedBy']
         sources = grab_sources_problem(title, 15)
         source_titles, source_links, solvability = calculate_solvability_and_sources(sources)
-        solved = Solved(title=title, link=link, sourceTitles=source_titles, sourceLinks = source_links, topic=topic, solvedBy=solvedBy)
+        solved = Solved(title=title, link=link, sourceTitles=source_titles, sourceLinks=source_links, topic=topic, solvedBy=solvedBy)
         q = Solved.query.filter_by(title=title).first()
         if q:
             app.db.session.delete(q)
@@ -104,6 +106,3 @@ def scrape_unsolved_problems():
 def scrape_solved_problems():
     scrape_solved_problems_topic('mathematics')
     scrape_solved_problems_topic('computer science')
-
-if __name__ == '__main__':
-    print(scrape_unsolved_problems_topic('mathematics'))

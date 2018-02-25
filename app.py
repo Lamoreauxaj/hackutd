@@ -2,7 +2,6 @@ from flask import Flask, send_from_directory, request
 from flask_sqlalchemy import SQLAlchemy
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
-from apscheduler.executors.pool import ThreadPoolExecutor
 
 # Redefine jinja template syntax
 class CustomFlask(Flask):
@@ -42,7 +41,9 @@ scheduler.add_job(
     id='scrape_unsolved_problems',
     replace_existing=True
 )
-scheduler.add_job(
+scheduler1 = BackgroundScheduler()
+scheduler1.start()
+scheduler1.add_job(
     func=scrape_solved_problems,
     trigger=IntervalTrigger(minutes=1),
     id='scrape_solved_problems',

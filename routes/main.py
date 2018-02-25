@@ -28,46 +28,46 @@ def get_unsolved_problems():
     problems['mathematics'] = []
     problems['computer science'] = []
     query = Unsolved.query.all()
-    try:
-        for q in query:
-            problem = {
-                'title': q.title,
-                'link': q.link,
-                'solvability': q.solvability,
-                'sources': []
-            }
-            i = 0
+    for q in query:
+        problem = {
+            'title': q.title,
+            'link': q.link,
+            'solvability': q.solvability,
+            'sources': []
+        }
+        i = 0
+        try:
             for s in q.sourceTitles:
                 problem['sources'].append({'title': s, 'link': q.sourceLinks[i]})
                 i += 1
-            problems[q.topic].append(problem)
-        for topic in problems.keys():
-            row = problems[topic]
-            problems[topic] = sorted(row, key=itemgetter('solvability'))
-    except:
-        pass
+        except:
+            pass
+        problems[q.topic].append(problem)
+    for topic in problems.keys():
+        row = problems[topic]
+        problems[topic] = sorted(row, key=itemgetter('solvability'))
     return jsonify(problems), 200
 
 
-@main.route('/api/get-solved-problems', methods=['POST'])
+@main.route('/api/get-solved-problems', methods=['POST', 'GET'])
 def get_solved_problems():
     problems = {}
     problems['mathematics'] = []
     problems['computer science'] = []
     query = Solved.query.all()
-    try:
-        for q in query:
-            problem = {
-                'title': q.title,
-                'link': q.link,
-                'solvedBy': q.solvedBy,
-                'sources': []
-            }
-            i = 0
+    for q in query:
+        problem = {
+            'title': q.title,
+            'link': q.link,
+            'solvedBy': q.solvedBy,
+            'sources': []
+        }
+        i = 0
+        try:
             for s in q.sourceTitles:
                 problem['sources'].append({'title': s, 'link': q.sourceLinks[i]})
                 i += 1
-            problems[q.topic].append(problem)
-    except:
-        pass
+        except:
+            pass
+        problems[q.topic].append(problem)
     return jsonify(problems), 200
