@@ -38,13 +38,13 @@ scheduler = BackgroundScheduler()
 scheduler.start()
 scheduler.add_job(
     func=scrape_unsolved_problems,
-    trigger=IntervalTrigger(hours=1),
+    trigger=IntervalTrigger(minutes=1),
     id='scrape_unsolved_problems',
     replace_existing=True
 )
 scheduler.add_job(
     func=scrape_solved_problems,
-    trigger=IntervalTrigger(hours=1),
+    trigger=IntervalTrigger(minutes=1),
     id='scrape_solved_problems',
     replace_existing=True
 )

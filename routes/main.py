@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, Response
+from flask import Blueprint, render_template, request, jsonify, Response, send_file
 from textblob import TextBlob
 from models.unsolved import Unsolved
 from models.solved import Solved
@@ -12,6 +12,11 @@ def index():
     return render_template('index.html')
 
 
+@main.route('/favicon.ico')
+def favicon():
+    return send_file('static/favicon.ico')
+
+
 @main.route('/api/get-topics', methods=['POST', 'GET'])
 def get_topics():
     return jsonify(['mathematics', 'computer science']), 200
@@ -23,21 +28,24 @@ def get_unsolved_problems():
     problems['mathematics'] = []
     problems['computer science'] = []
     query = Unsolved.query.all()
-    for q in query:
-        problem = {
-            'title': q.title,
-            'link': q.link,
-            'solvability': q.solvability,
-            'sources': []
-        }
-        i = 0
-        for s in q.sourceTitles:
-            problem['sources'].append({'title': s, 'link': q.sourceLinks[i]})
-            i += 1
-        problems[q.topic].append(problem)
-    for topic in problems.keys():
-        row = problems[topic]
-        problems[topic] = sorted(row, key=itemgetter('solvability'))
+    try:
+        for q in query:
+            problem = {
+                'title': q.title,
+                'link': q.link,
+                'solvability': q.solvability,
+                'sources': []
+            }
+            i = 0
+            for s in q.sourceTitles:
+                problem['sources'].append({'title': s, 'link': q.sourceLinks[i]})
+                i += 1
+            problems[q.topic].append(problem)
+        for topic in problems.keys():
+            row = problems[topic]
+            problems[topic] = sorted(row, key=itemgetter('solvability'))
+    except:
+        pass
     return jsonify(problems), 200
 
 
@@ -47,16 +55,19 @@ def get_solved_problems():
     problems['mathematics'] = []
     problems['computer science'] = []
     query = Solved.query.all()
-    for q in query:
-        problem = {
-            'title': q.title,
-            'link': q.link,
-            'solvedBy': q.solvedBy,
-            'sources': []
-        }
-        i = 0
-        for s in q.sourceTitles:
-            problem['sources'].append({'title': s, 'link': q.sourceLinks[i]})
-            i += 1
-        problems[q.topic].append(problem)
+    try:
+        for q in query:
+            problem = {
+                'title': q.title,
+                'link': q.link,
+                'solvedBy': q.solvedBy,
+                'sources': []
+            }
+            i = 0
+            for s in q.sourceTitles:
+                problem['sources'].append({'title': s, 'link': q.sourceLinks[i]})
+                i += 1
+            problems[q.topic].append(problem)
+    except:
+        pass
     return jsonify(problems), 200

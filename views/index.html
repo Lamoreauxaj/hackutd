@@ -10,61 +10,71 @@
     <script src="%% url_for('view_static', filename='lib/materialize.js') %%"></script>
     <script src="%% url_for('view_static', filename='lib/vue.js') %%"></script>
 
+    <link rel="icon" href="%% url_for('static', filename='favicon.ico') %%">
+
     <link rel="stylesheet" href="%% url_for('view_static', filename='css/index.css') %%">
 </head>
 <body>
     <div id="root">
 
+        <!-- Loading bar -->
+        <div v-if="loading" class="progress" style="margin-top: 0">
+            <div class="indeterminate"></div>
+        </div>
+
         <!-- Header Stuffs (logo, topics)-->
         <div style="text-align: center">
             <img class="icon responsive-img" src="%% url_for('static', filename='logo_cropped.png') %%">
         </div>
-        <div class="topic-list">
-            <div v-for="topic in topics" class="topic-item">
-                <button class="btn topic-button white black-text" :class="{ disabled: currTopic == topic }" @click="onTopicClick(topic)">{{ topic }}</button>
+
+        <div v-if="!loading">
+            <div class="topic-list">
+                <div v-for="topic in topics" class="topic-item">
+                    <button class="btn topic-button white black-text" :class="{ disabled: currTopic == topic }" @click="onTopicClick(topic)">{{ topic }}</button>
+                </div>
             </div>
-        </div>
 
-        <!-- Unsolved problems under this topic -->
-        <h4 class="white-text" style="text-align: center; margin-top: 50px;">Unsolved Problems <i class="material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Unsolved problems sorted by likelihood to be solved.">info</i></h4>
-        <ul class="problem-list row" v-if="unsolved">
-            <li v-for="problem, index in unsolved[currTopic]" v-if="index < showUnsolvedCount" :style="{ 'background-color': problem.color }" class="problem card col s10 offset-s1 m8 offset-m2 l6 offset-l3 xl4 offset-xl4">
-                <div>
-                    <h5 class="problem-title black-text" style="display: inline-block"><a class="black-text" :href="problem.link">{{ problem.title }}</a></h5>
-                    <i class="material-icons problem-dropdown-icon" @click="setDropdown(index, false)" style="display: inline-block">arrow_drop_down</i>
-                </div>
-                <div class="problem-dropdown" :style="{ 'display': (!problem.dropdown ? 'none' : 'block') }">
-                    <ul class="source-list">
-                        <li v-for="source in problem.sources" class="source">
-                            <h6><a class="black-text" :href="source.link">{{ source.title }}</a></h6>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-        </ul>
-        <div style="text-align: center" v-if="unsolved && unsolved[currTopic].length > showUnsolvedCount">
-            <button class="btn-small white black-text" style="border-radius: 10px;" @click="showUnsolvedCount += 5;">Show More</button>
-        </div>
-        <div></div>
+            <!-- Unsolved problems under this topic -->
+            <h4 class="white-text" style="text-align: center; margin-top: 50px;">Unsolved Problems <i class="material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Unsolved problems sorted by likelihood to be solved.">info</i></h4>
+            <ul class="problem-list row" v-if="unsolved">
+                <li v-for="problem, index in unsolved[currTopic]" v-if="index < showUnsolvedCount" :style="{ 'background-color': problem.color }" class="problem card col s10 offset-s1 m8 offset-m2 l6 offset-l3 xl4 offset-xl4">
+                    <div>
+                        <h5 class="problem-title black-text" style="display: inline-block"><a class="black-text" :href="problem.link">{{ problem.title }}</a></h5>
+                        <i class="material-icons problem-dropdown-icon" @click="setDropdown(index, false)" style="display: inline-block">arrow_drop_down</i>
+                    </div>
+                    <div class="problem-dropdown" :style="{ 'display': (!problem.dropdown ? 'none' : 'block') }">
+                        <ul class="source-list">
+                            <li v-for="source in problem.sources" class="source">
+                                <h6><a class="black-text" :href="source.link">{{ source.title }}</a></h6>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+            <div style="text-align: center" v-if="unsolved && unsolved[currTopic].length > showUnsolvedCount">
+                <button class="btn-small white black-text" style="border-radius: 10px;" @click="showUnsolvedCount += 5;">Show More</button>
+            </div>
+            <div></div>
 
-        <!-- Solved problems under this topic -->
-        <h4 class="white-text" style="text-align: center; margin-top: 50px">Solved Problems <i class="material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Solved problems sorted by most recently solved.">info</i></h4>
-        <ul class="problem-list row" v-if="solved">
-            <li v-for="problem, index in solved[currTopic]" v-if="index < showSolvedCount" :style="{ 'background-color': problem.color}" class="problem card col s10 offset-s1 m8 offset-m2 l6 offset-l3 xl4 offset-xl4">
-                <div>
-                    <h5 class="problem-title black-text" style="display: inline-block"><a class="black-text" :href="problem.link">{{ problem.title }}</a></h5>
-                    <i class="material-icons problem-dropdown-icon" @click="setDropdown(index, true)" style="display: inline-block">arrow_drop_down</i>
-                </div>
-                <div class="problem-dropdown" :style="{ 'display': (!problem.dropdown ? 'none' : 'block') }">
-                    <ul class="source-list">
-                        <li>Solved By {{ problem.solvedBy }}</li>
-                        <li v-for="source in problem.sources" class="source">
-                            <h6><a class="black-text" :href="source.link">{{ source.title }}</a></h6>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-        </ul>
+            <!-- Solved problems under this topic -->
+            <h4 class="white-text" style="text-align: center; margin-top: 50px">Solved Problems <i class="material-icons tooltipped" data-position="left" data-delay="50" data-tooltip="Solved problems sorted by most recently solved.">info</i></h4>
+            <ul class="problem-list row" v-if="solved">
+                <li v-for="problem, index in solved[currTopic]" v-if="index < showSolvedCount" :style="{ 'background-color': problem.color}" class="problem card col s10 offset-s1 m8 offset-m2 l6 offset-l3 xl4 offset-xl4">
+                    <div>
+                        <h5 class="problem-title black-text" style="display: inline-block"><a class="black-text" :href="problem.link">{{ problem.title }}</a></h5>
+                        <i class="material-icons problem-dropdown-icon" @click="setDropdown(index, true)" style="display: inline-block">arrow_drop_down</i>
+                    </div>
+                    <div class="problem-dropdown" :style="{ 'display': (!problem.dropdown ? 'none' : 'block') }">
+                        <ul class="source-list">
+                            <li>Solved By {{ problem.solvedBy }}</li>
+                            <li v-for="source in problem.sources" class="source">
+                                <h6><a class="black-text" :href="source.link">{{ source.title }}</a></h6>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
     <script>
         var vue = new Vue({
@@ -73,6 +83,7 @@
                 return {
                     currTopic: "",
                     topics: undefined,
+                    loading: true,
                     unsolved: undefined,
                     showUnsolvedCount: 5,
                     solved: undefined,
@@ -140,49 +151,14 @@
                 await $.post('/api/get-unsolved-problems', {}, (data) => {
                     this.unsolved = data;
                 });
-                this.solved = {
-                    'mathematics': [
-                        {
-                            title: 'P versus NP problem',
-                            solvedBy: 'Puya Gharahi',
-                            link: 'google.com',
-                            sources: [
-                                {
-                                    title: 'Wikipedia - P versus NP problem',
-                                    link: 'https://en.wikipedia.org/wiki/P_versus_NP_problem'
-                                }
-                            ]
-                        },
-                        {
-                            title: 'P versus NP problem',
-                            solvedBy: 'Puya Gharahi',
-                            link: 'google.com',
-                            sources: [
-                                {
-                                    title: 'Wikipedia - P versus NP problem',
-                                    link: 'https://en.wikipedia.org/wiki/P_versus_NP_problem'
-                                }
-                            ]
-                        },
-                        {
-                            title: 'P versus NP problem',
-                            solvedBy: 'Puya Gharahi',
-                            link: 'google.com',
-                            sources: [
-                                {
-                                    title: 'Wikipedia - P versus NP problem',
-                                    link: 'https://en.wikipedia.org/wiki/P_versus_NP_problem'
-                                }
-                            ]
-                        }
-                    ],
-                    'other': [
-
-                    ]
-                };
+                await $.post('/api/get-solved-problems', {}, (data) => {
+                    this.solved = data;
+                });
                 // Add characteristics to problems
                 this.unsolved = this.setCharacteristicsOfProblems(this.unsolved);
                 this.solved = this.setCharacteristicsOfProblems(this.solved);
+                this.loading = false;
+                setTimeout(() => {$('.tooltipped').tooltip({delay: 50});}, 1000);
             }
         });
     </script>
